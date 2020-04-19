@@ -7,19 +7,14 @@ Main function
 
 from model.agree import AGREE
 import torch
-import torch.nn as nn
-import torch.autograd as autograd
-from torch.autograd import Variable
 import torch.optim as optim
-import torch.nn.functional as F
 import numpy as np
 from time import time
 from config import Config
 from utils.util import Helper
 from dataset import GDataset
 
-
-# train the model
+# 训练模型
 def training(model, train_loader, epoch_id, config, type_m):
     # user trainning
     learning_rates = config.lr
@@ -58,11 +53,7 @@ def training(model, train_loader, epoch_id, config, type_m):
         # Backward
         loss.backward()
         optimizer.step()
-
-    print('Iteration %d, loss is [%.4f ]' % (epoch_id, np.mean(losses)))
-
-
-
+    print('Iteration %d, loss is [%.4f ]' % (epoch_id, torch.mean(torch.stack(losses), 0)))
 
 def evaluation(model, helper, testRatings, testNegatives, K, type_m):
     model.eval()
@@ -70,39 +61,42 @@ def evaluation(model, helper, testRatings, testNegatives, K, type_m):
     hr, ndcg = np.array(hits).mean(), np.array(ndcgs).mean()
     return hr, ndcg
 
-
 if __name__ == '__main__':
-    # initial parameter class
+    # 初始化参数
     config = Config()
 
-    # initial helper
+    # 初始化工具函数
     helper = Helper()
 
-    # get the dict of users in group
+    # 加载群组内的用户，构成dict
+    # {groupid: [uid1, uid2, ..], ...}
     g_m_d = helper.gen_group_member_dict(config.user_in_group_path)
 
-    # initial dataSet class
+    # 初始化数据类
     dataset = GDataset(config.user_dataset, config.group_dataset, config.num_negatives)
 
-    # get group number
+    # 获取群组的数目、训练集中用户的数目、训练集中物品的数目
     num_group = len(g_m_d)
     num_users, num_items = dataset.num_users, dataset.num_items
+    print("num_group is: " + str(num_group))
+    print("num_users is: " + str(num_users))
+    print("num_items is: " + str(num_items))
 
-    # build AGREE model
+    # 训练 AGREE 模型
     agree = AGREE(num_users, num_items, num_group, config.embedding_size, g_m_d, config.drop_ratio)
 
-    # config information
-    print("AGREE at embedding size %d, run Iteration:%d, NDCG and HR at %d" %(config.embedding_size, config.epoch, config.topK))
-    # train the model
+    # 打印配置信息
+    print("AGREE 的Embedding 维度为: %d, 迭代次数为: %d, NDCG、HR评估选择topK: %d" %(config.embedding_size, config.epoch, config.topK))
+
+    # 训练模型
     for epoch in range(config.epoch):
         agree.train()
         # 开始训练时间
         t1 = time()
         training(agree, dataset.get_user_dataloader(config.batch_size), epoch, config, 'user')
-
         training(agree, dataset.get_group_dataloader(config.batch_size), epoch, config, 'group')
         print("user and group training time is: [%.1f s]" % (time()-t1))
-        # evaluation
+        # 评估模型
         t2 = time()
         u_hr, u_ndcg = evaluation(agree, helper, dataset.user_testRatings, dataset.user_testNegatives, config.topK, 'user')
         print('User Iteration %d [%.1f s]: HR = %.4f, NDCG = %.4f, [%.1f s]' % (
@@ -112,7 +106,6 @@ if __name__ == '__main__':
         print(
             'Group Iteration %d [%.1f s]: HR = %.4f, '
             'NDCG = %.4f, [%.1f s]' % (epoch, time() - t1, hr, ndcg, time() - t2))
-
 
     print("Done!")
 

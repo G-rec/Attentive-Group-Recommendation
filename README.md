@@ -1,16 +1,17 @@
-#
+# Attentive-Group-Recommendation
 
-# Attentive Group Recommendation
+## 说明
 
-This is our implementation for the paper:
+该项目Fork LianHaiMiao/Attentive-Group-Recommendation
 
-Da Cao, Xiangnan He, Lianhai Miao, Yahui An, Chao Yang, and Richang Hong. 2018. Attentive Group Recommendation.  In <em>The 41st International ACM SIGIR Conference on Research &#38; Development in Information Retrieval</em> (SIGIR '18). ACM, New York, NY, USA,  645-654.
+原代码地址：https://github.com/LianHaiMiao/Attentive-Group-Recommendation
 
-In order to learn the group interest, we use attention mechanism to learn the aggregation strategy from data in a dynamic way.
+之所以fork这个库是因为，源库中的代码是基于以下版本实现的
+- pytorch version:  '0.3.0'
+- python version: '3.5'
 
-**Please cite our SIGIR'18 paper if you use our codes. Thanks!** 
+pytorch目前已经更新到 1.4.0版本，所以进行代码的更新，同时将Python版本升级到3.7（python 版本影响不大）
 
-BibTeX:
 
 ```
 @inproceedings{Cao2018Attentive,
@@ -32,12 +33,11 @@ BibTeX:
 }
 ```
 
-## Environment Settings
-We use the framework pytorch. 
-- pytorch version:  '0.3.0'
-- python version: '3.5'
+## 我的环境
+- pytorch version: '1.4.0'
+- python version: '3.7'
 
-## Example to run the codes.
+## 代码运行
 
 Run AGREE:
 
@@ -45,9 +45,7 @@ Run AGREE:
 python main.py
 ```
 
-After training process, the value of HR and NDCG in the test dataset will be printed in command window after each optimization iteration.
-
-Output:
+训练之后，数据集进行测试输出为：
 
 ```
 AGREE at embedding size 32, run Iteration:30, NDCG and HR at 5
@@ -58,28 +56,31 @@ Group Iteration 10 [471.9 s]: HR = 0.5910, NDCG = 0.4005, [23.0 s]
 ```
 
 
-## Parameter Tuning
+## 参数说明
 
-we put all the papameters in the config.py
+将模型使用的参数放置在 utils/config.py 中
 
-## Dataset
+## 数据集
 
-We provide one processed dataset: CAMRa2011. 
+这里只开源了CAMRa2011数据集，因为马蜂窝的数据集被使用在另一篇算法中，因为算法还未公开，所以马蜂窝的数据集暂时不公开
 
-Because we have another paper use the MaFengWo dataset are under reviewing, so we can't release MaFengWo dataset now.
-
-group(user) train.rating:
-
-* Train file.
-* Each Line is a training instance: groupID(userID)\t itemID\t rating\t timestamp (if have)
-
-test.rating:
-
-* group(user) Test file (positive instances).
-* Each Line is a testing instance: groupID(userID)\t itemID\t rating\t timestamp (if have)
-
-test.negative
-
-* group(user) Test file (negative instances).
-* Each line corresponds to the line of test.rating, containing 100 negative samples.
-* Each line is in the format: (groupID(userID),itemID)\t negativeItemID1\t negativeItemID2 ...
+data/CAMRa2011 数据说明：
+- groupMember.txt
+  - 每一行包含的数据格式为：群组id 用户id1,用户id2,..
+- groupRatingNegative.txt
+    - 每一行包含的数据格式为：(群组id,物品id) 负采样的物品id1,负采样的物品id2,...
+    - 每一行的负样本包含100个
+    - 负采样的物品ID表示群组内用户没有交互行为的物品
+    
+- groupRatingTest.txt
+    - 每一行有三个数据分别表示：群组ID，物品ID，评分
+- groupRatingTrain.txt
+    - 每一行有三个数据分别表示：群组ID，物品ID，评分
+- userRatingNegative.txt
+    - 每一行包含的数据格式为：(群组id,物品id) 负采样的物品id1,负采样的物品id2,...
+    - 每一行的负样本包含100个
+    - 负采样的物品ID表示用户没有交互行为的物品
+- userRatingTest.txt
+    - 每一行有三个数据分别表示：用户ID，物品ID，评分
+- userRatingTrain.txt
+    - 每一行有三个数据分别表示：用户ID，物品ID，评分

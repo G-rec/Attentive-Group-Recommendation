@@ -1,11 +1,11 @@
 '''
 Created on Nov 10, 2017
+
 Deal something
 
 @author: Lianhai Miao
 '''
 import torch
-from torch.autograd import Variable
 import numpy as np
 import math
 import heapq
@@ -18,6 +18,9 @@ class Helper(object):
         self.timber = True
 
     def gen_group_member_dict(self, path):
+        """
+        Load Group-Users Data
+        """
         g_m_d = {}
         with open(path, 'r') as f:
             line = f.readline().strip()

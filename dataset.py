@@ -29,6 +29,33 @@ class GDataset(object):
         self.group_testRatings = self.load_rating_file_as_list(group_path + "Test.txt")
         self.group_testNegatives = self.load_negative_file(group_path + "Negative.txt")
 
+    def load_rating_file_as_matrix(self, filename):
+        # Get number of users and items
+        num_users, num_items = 0, 0
+        with open(filename, "r") as f:
+            line = f.readline()
+            while line != None and line != "":
+                arr = line.split(" ")
+                u, i = int(arr[0]), int(arr[1])
+                num_users = max(num_users, u)
+                num_items = max(num_items, i)
+                line = f.readline()
+
+        # Construct matrix
+        mat = sp.dok_matrix((num_users + 1, num_items + 1), dtype=np.float32)
+        with open(filename, "r") as f:
+            line = f.readline()
+            while line != None and line != "":
+                arr = line.split(" ")
+                if len(arr) > 2:
+                    user, item, rating = int(arr[0]), int(arr[1]), int(arr[2])
+                    if (rating > 0):
+                        mat[user, item] = 1.0
+                else:
+                    user, item = int(arr[0]), int(arr[1])
+                    mat[user, item] = 1.0
+                line = f.readline()
+        return mat
 
     def load_rating_file_as_list(self, filename):
         ratingList = []
@@ -54,32 +81,6 @@ class GDataset(object):
                 line = f.readline()
         return negativeList
 
-    def load_rating_file_as_matrix(self, filename):
-        # Get number of users and items
-        num_users, num_items = 0, 0
-        with open(filename, "r") as f:
-            line = f.readline()
-            while line != None and line != "":
-                arr = line.split(" ")
-                u, i = int(arr[0]), int(arr[1])
-                num_users = max(num_users, u)
-                num_items = max(num_items, i)
-                line = f.readline()
-        # Construct matrix
-        mat = sp.dok_matrix((num_users + 1, num_items + 1), dtype=np.float32)
-        with open(filename, "r") as f:
-            line = f.readline()
-            while line != None and line != "":
-                arr = line.split(" ")
-                if len(arr) > 2:
-                    user, item, rating = int(arr[0]), int(arr[1]), int(arr[2])
-                    if (rating > 0):
-                        mat[user, item] = 1.0
-                else:
-                    user, item = int(arr[0]), int(arr[1])
-                    mat[user, item] = 1.0
-                line = f.readline()
-        return mat
 
     def get_train_instances(self, train):
         user_input, pos_item_input, neg_item_input = [], [], []
