@@ -24,6 +24,7 @@ class Helper(object):
         g_m_d = {}
         with open(path, 'r') as f:
             line = f.readline().strip()
+            # 数据行示例：214 559,570
             while line != None and line != "":
                 a = line.split(' ')
                 g = int(a[0])

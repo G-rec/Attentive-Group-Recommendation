@@ -1,9 +1,9 @@
-'''
+"""
 Created on Nov 10, 2017
 Main function
 
 @author: Lianhai Miao
-'''
+"""
 
 from model.agree import AGREE
 import torch
@@ -18,7 +18,7 @@ from dataset import GDataset
 def training(model, train_loader, epoch_id, config, type_m):
     # user trainning
     learning_rates = config.lr
-    # learning rate decay
+    # 根据迭代的次数进行学习率的衰减
     lr = learning_rates[0]
     if epoch_id >= 15 and epoch_id < 25:
         lr = learning_rates[1]
@@ -28,7 +28,7 @@ def training(model, train_loader, epoch_id, config, type_m):
     if epoch_id % 5 == 0:
         lr /= 2
 
-    # optimizer
+    # 定义优化器
     optimizer = optim.RMSprop(model.parameters(), lr)
 
     losses = []

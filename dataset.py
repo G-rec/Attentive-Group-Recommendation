@@ -30,7 +30,7 @@ class GDataset(object):
         self.group_testNegatives = self.load_negative_file(group_path + "Negative.txt")
 
     def load_rating_file_as_matrix(self, filename):
-        # Get number of users and items
+        # 获取用户和物品的数目
         num_users, num_items = 0, 0
         with open(filename, "r") as f:
             line = f.readline()
@@ -42,6 +42,7 @@ class GDataset(object):
                 line = f.readline()
 
         # Construct matrix
+        # num_users, num_items 为用户和物品编号的最大值，这里 +1 是因为矩阵的索引从[0,0]开始，有行为统计则rate为1
         mat = sp.dok_matrix((num_users + 1, num_items + 1), dtype=np.float32)
         with open(filename, "r") as f:
             line = f.readline()
@@ -81,16 +82,14 @@ class GDataset(object):
                 line = f.readline()
         return negativeList
 
-
     def get_train_instances(self, train):
         user_input, pos_item_input, neg_item_input = [], [], []
-        num_users = train.shape[0]
-        num_items = train.shape[1]
+        (num_users, num_items) = train.shape
         for (u, i) in train.keys():
-            # positive instance
+            # 正例 之所以采样 num_negatives 次，是因为后边zip时，组成 num_negatives个 正负采样 组合
             for _ in range(self.num_negatives):
                 pos_item_input.append(i)
-            # negative instances
+            # 负例
             for _ in range(self.num_negatives):
                 j = np.random.randint(num_items)
                 while (u, j) in train:
